@@ -77,7 +77,7 @@ export function CartProvider({ children }) {
 
 export const useCart = () => useContext(CartContext)
 
-export function buildWhatsAppUrl(lines, total, customer = {}) {
+export function buildWhatsAppMessage(lines, total, customer = {}) {
   const rows = lines.map((l, i) => {
     const item = MENU.find((m) => m.id === l.itemId)
     const extras = l.addons.map((id) => ADDONS.find((a) => a.id === id)?.name).filter(Boolean)
@@ -93,7 +93,12 @@ export function buildWhatsAppUrl(lines, total, customer = {}) {
     `*Total: ₹${total}*`,
   ]
   if (customer.name) parts.push('', `Name: ${customer.name}`)
+  if (customer.address) parts.push(`Delivery address: ${customer.address}`)
   if (customer.note) parts.push(`Note: ${customer.note}`)
-  parts.push('', 'Please confirm my order. Thank you!')
-  return `https://wa.me/${BUSINESS.whatsapp}?text=${encodeURIComponent(parts.join('\n'))}`
+  parts.push('', 'I will pay using the QR code shown at checkout and send the payment screenshot here.', 'Please confirm my order. Thank you!')
+  return parts.join('\n')
+}
+
+export function buildWhatsAppUrl(lines, total, customer = {}) {
+  return `https://wa.me/${BUSINESS.whatsapp}?text=${encodeURIComponent(buildWhatsAppMessage(lines, total, customer))}`
 }

@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react'
 import { useCart, lineUnitPrice, buildWhatsAppUrl } from '../CartContext'
 import { MENU, ADDONS } from '../data'
+import paymentQr from '../assets/payments.jpeg'
 import { WhatsAppIcon } from './Icons'
 
 export default function CartDrawer() {
   const { lines, total, count, open, setOpen, changeQty, removeLine, clear } = useCart()
   const [name, setName] = useState('')
+  const [address, setAddress] = useState('')
   const [note, setNote] = useState('')
 
   useEffect(() => {
@@ -19,8 +21,13 @@ export default function CartDrawer() {
     }
   }, [open, setOpen])
 
-  const order = () => {
-    const url = buildWhatsAppUrl(lines, total, { name: name.trim(), note: note.trim() })
+  const order = (event) => {
+    event.preventDefault()
+    const url = buildWhatsAppUrl(lines, total, {
+      name: name.trim(),
+      address: address.trim(),
+      note: note.trim(),
+    })
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
@@ -80,24 +87,48 @@ export default function CartDrawer() {
             </ul>
 
             <div className="drawer__foot">
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name (optional)" maxLength={60} />
-              <textarea
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Any note? e.g. less sweet, pickup time (optional)"
-                rows={2}
-                maxLength={200}
-              />
-              <div className="drawer__total">
-                <span>Total</span>
-                <b>₹{total}</b>
-              </div>
-              <button className="btn btn--whatsapp btn--block" onClick={order}>
-                <WhatsAppIcon size={20} /> Order on WhatsApp
-              </button>
-              <button className="link-btn" onClick={clear}>
-                Clear cart
-              </button>
+              <form onSubmit={order}>
+                <input
+                  aria-label="Your name (required)"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name *"
+                  pattern=".*\S.*"
+                  required
+                  maxLength={60}
+                />
+                <input
+                  aria-label="Delivery address (required)"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Delivery address *"
+                  pattern=".*\S.*"
+                  required
+                  maxLength={200}
+                />
+                <textarea
+                  aria-label="Order note (optional)"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Any note? e.g. less sweet, pickup time (optional)"
+                  rows={2}
+                  maxLength={200}
+                />
+                <div className="drawer__total">
+                  <span>Total</span>
+                  <b>₹{total}</b>
+                </div>
+                <div className="drawer__payment">
+                  <img src={paymentQr} alt="Payment QR code for Aaradhya" />
+                  <p>Pay using this QR code, then send your payment screenshot on WhatsApp with your order.</p>
+                </div>
+                <button className="btn btn--whatsapp btn--block" type="submit">
+                  <WhatsAppIcon size={20} /> Order on WhatsApp
+                </button>
+                <button className="link-btn" type="button" onClick={clear}>
+                  Clear cart
+                </button>
+              </form>
             </div>
           </>
         )}

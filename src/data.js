@@ -27,7 +27,7 @@ export const MENU = [
   {
     id: 'oats',
     name: 'Oats Meal',
-    price: 89,
+    price: 69,
     image: oats,
     badge: 'Bestseller',
     description:
